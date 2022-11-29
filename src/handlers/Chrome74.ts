@@ -315,13 +315,24 @@ export class Chrome74 extends HandlerInterface
 			ortc.reduceCodecs(sendingRemoteRtpParameters.codecs, codec);
 
 		const mediaSectionIdx = this._remoteSdp!.getNextMediaSectionIdx();
-		const transceiver = this._pc.addTransceiver(
+		const transceiver:RTCRtpTransceiver = this._pc.addTransceiver(
 			track,
 			{
 				direction     : 'sendonly',
 				streams       : [ this._sendStream ],
 				sendEncodings : encodings
 			});
+
+		if (codec?.mimeType.toLowerCase()==='audio/red')
+		{
+			const { codecs } = RTCRtpSender.getCapabilities('audio')!;
+
+			transceiver.setCodecPreferences([
+				codecs.find((c) => c.mimeType.toLowerCase() === 'audio/red')!,
+				...codecs.filter((c) => c.mimeType.toLowerCase() !== 'audio/red')
+			]);
+		}
+
 		let offer = await this._pc.createOffer();
 		let localSdpObject = sdpTransform.parse(offer.sdp);
 		let offerMediaObject;

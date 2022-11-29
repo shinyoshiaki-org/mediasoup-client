@@ -972,17 +972,17 @@ export function reduceCodecs(
 				if (isRtxCodec(codecs[idx + 1]))
 					filteredCodecs.push(codecs[idx + 1]);
 
+				if (codecs[idx].mimeType==='audio/red')
+				{
+					filteredCodecs.push(codecs.find((c) => c.mimeType==='audio/opus')!);
+				}
+
 				break;
 			}
 		}
 
 		if (filteredCodecs.length === 0)
 			throw new TypeError('no matching codec found');
-	}
-
-	if (capCodec?.mimeType==='audio/red')
-	{
-		filteredCodecs.push(codecs.find((c) => c.mimeType==='audio/opus')!);
 	}
 
 	return filteredCodecs;

@@ -980,6 +980,11 @@ export function reduceCodecs(
 			throw new TypeError('no matching codec found');
 	}
 
+	if (capCodec?.mimeType==='audio/red')
+	{
+		filteredCodecs.push(codecs.find((c) => c.mimeType==='audio/opus')!);
+	}
+
 	return filteredCodecs;
 }
 

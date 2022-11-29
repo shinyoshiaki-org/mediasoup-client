@@ -381,7 +381,7 @@ export class Chrome74 extends HandlerInterface
 		await this._pc.setLocalDescription(offer);
 
 		// We can now get the transceiver.mid.
-		const localId = transceiver.mid;
+		const localId = transceiver.mid!;
 
 		// Set MID.
 		sendingRtpParameters.mid = localId;

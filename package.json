@@ -34,7 +34,6 @@
   "scripts": {
     "prepare": "node npm-scripts.js prepare",
     "typescript:build": "node npm-scripts.js typescript:build",
-    "build": "node npm-scripts.js typescript:build",
     "typescript:watch": "node npm-scripts.js typescript:watch",
     "lint": "node npm-scripts.js lint",
     "test": "node npm-scripts.js test",

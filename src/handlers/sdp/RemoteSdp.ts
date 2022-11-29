@@ -39,7 +39,7 @@ export class RemoteSdp
 	// First MID.
 	private _firstMid?: string;
 	// SDP object.
-	readonly _sdpObject: any;
+	readonly _sdpObject: sdpTransform.SessionDescription;
 
 	constructor(
 		{
@@ -109,8 +109,8 @@ export class RemoteSdp
 		// If there are plain RPT parameters, override SDP origin.
 		if (plainRtpParameters)
 		{
-			this._sdpObject.origin.address = plainRtpParameters.ip;
-			this._sdpObject.origin.ipVer = plainRtpParameters.ipVersion;
+			this._sdpObject.origin!.address = plainRtpParameters.ip;
+			this._sdpObject.origin!.ipVer = plainRtpParameters.ipVersion;
 		}
 	}
 
@@ -381,7 +381,7 @@ export class RemoteSdp
 	getSdp(): string
 	{
 		// Increase SDP version.
-		this._sdpObject.origin.sessionVersion++;
+		this._sdpObject.origin!.sessionVersion++;
 
 		return sdpTransform.write(this._sdpObject);
 	}
@@ -398,7 +398,7 @@ export class RemoteSdp
 		this._midToIndex.set(newMediaSection.mid, this._mediaSections.length - 1);
 
 		// Add to the SDP object.
-		this._sdpObject.media.push(newMediaSection.getObject());
+		this._sdpObject.media.push(newMediaSection.getObject() as any);
 
 		// Regenerate BUNDLE mids.
 		this._regenerateBundleMids();
@@ -426,7 +426,7 @@ export class RemoteSdp
 			this._midToIndex.set(newMediaSection.mid, idx);
 
 			// Update the SDP object.
-			this._sdpObject.media[idx] = newMediaSection.getObject();
+			this._sdpObject.media[idx] = newMediaSection.getObject() as any;
 
 			// Regenerate BUNDLE mids.
 			this._regenerateBundleMids();
@@ -445,7 +445,7 @@ export class RemoteSdp
 			this._mediaSections[idx] = newMediaSection;
 
 			// Update the SDP object.
-			this._sdpObject.media[idx] = newMediaSection.getObject();
+			this._sdpObject.media[idx] = newMediaSection.getObject() as any;
 		}
 	}
 
@@ -466,7 +466,7 @@ export class RemoteSdp
 		if (!this._dtlsParameters)
 			return;
 
-		this._sdpObject.groups[0].mids = this._mediaSections
+		this._sdpObject.groups![0].mids = this._mediaSections
 			.filter((mediaSection: MediaSection) => !mediaSection.closed)
 			.map((mediaSection: MediaSection) => mediaSection.mid)
 			.join(' ');

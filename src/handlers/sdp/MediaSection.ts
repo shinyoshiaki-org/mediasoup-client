@@ -547,10 +547,14 @@ export class OfferMediaSection extends MediaSection
 						if (fmtp.config)
 							fmtp.config += ';';
 						
-						const payload = codec.parameters[key]
-						if (payload.length === 0) {
+						const payload = codec.parameters[key];
+
+						if (payload.length === 0) 
+						{
 							fmtp.config += `${key}`;
-						} else{
+						}
+						else 
+						{
 							fmtp.config += `${key}=${payload}`;
 						}
 					}

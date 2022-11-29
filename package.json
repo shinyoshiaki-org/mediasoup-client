@@ -1,6 +1,6 @@
 {
   "name": "@shinyoshiaki/mediasoup-client",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "mediasoup client side JavaScript library",
   "contributors": [
     "Iñaki Baz Castillo <ibc@aliax.net> (https://inakibaz.me)",
@@ -34,6 +34,7 @@
   "scripts": {
     "prepare": "node npm-scripts.js prepare",
     "typescript:build": "node npm-scripts.js typescript:build",
+    "build": "node npm-scripts.js typescript:build",
     "typescript:watch": "node npm-scripts.js typescript:watch",
     "lint": "node npm-scripts.js lint",
     "test": "node npm-scripts.js test",

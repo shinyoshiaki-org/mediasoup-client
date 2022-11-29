@@ -446,6 +446,17 @@ export class Chrome74 extends HandlerInterface
 				extmapAllowMixed    : true
 			});
 
+		if (codec?.mimeType.toLowerCase()==='audio/red')
+		{
+			const redRemoteMedia=
+				this._remoteSdp!._sdpObject.media.find((m:any) => m.payloads.includes(63))!;
+			const redLocalMedia=localSdpObject.media.find((m:any) => m.payloads.includes(63))!;
+
+			redRemoteMedia.rtp=JSON.parse(JSON.stringify(redLocalMedia.rtp.slice(0, 2)));
+			redRemoteMedia.fmtp=JSON.parse(JSON.stringify(redLocalMedia.fmtp));
+			redRemoteMedia.payloads=redRemoteMedia.rtp.map((r:any) => r.payload).join(' ');
+		}
+
 		const answer = { type: 'answer', sdp: this._remoteSdp!.getSdp() };
 
 		logger.debug(

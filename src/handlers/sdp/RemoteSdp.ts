@@ -39,7 +39,7 @@ export class RemoteSdp
 	// First MID.
 	private _firstMid?: string;
 	// SDP object.
-	private readonly _sdpObject: any;
+	readonly _sdpObject: any;
 
 	constructor(
 		{

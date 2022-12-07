@@ -58,6 +58,7 @@ export class Chrome74 extends HandlerInterface
 	private _nextSendSctpStreamId = 0;
 	// Got transport local and remote parameters.
 	private _transportReady = false;
+	private _extendedRtpCapabilities:any;
 
 	/**
 	 * Creates a factory function.
@@ -156,7 +157,7 @@ export class Chrome74 extends HandlerInterface
 		logger.debug('run()');
 
 		this._direction = direction;
-
+		this._extendedRtpCapabilities = extendedRtpCapabilities;
 		this._remoteSdp = new RemoteSdp(
 			{
 				iceParameters,
@@ -346,6 +347,40 @@ export class Chrome74 extends HandlerInterface
 				});
 		}
 
+		if (sendingRtpParameters.codecs.find((c:any) => c.mimeType==='audio/red'))
+		{
+			localSdpObject = sdpTransform.parse(offer.sdp);
+			offerMediaObject = localSdpObject.media[mediaSectionIdx.idx];
+			
+			const rtp = utils.clone(offerMediaObject.rtp.slice(0, 2), {});
+
+			const payload = 
+				this._extendedRtpCapabilities.codecs.find((c:any) => c.mimeType==='audio/opus').remotePayloadType;
+
+			rtp[1].payload = payload;
+			
+			const fmtp = utils.clone(offerMediaObject.fmtp, {});
+
+			fmtp[0].config=`${payload}/${payload}`;
+			fmtp[1].payload=payload;
+
+			const red =	sendingRtpParameters.codecs.find((c:any) => c.mimeType==='audio/red')!;
+
+			red.parameters = { [`${payload}/${payload}`]: '' };
+
+			const rtcpFb = utils.clone(offerMediaObject.rtcpFb, {});
+
+			rtcpFb[0].payload = payload;
+			
+			const payloads = rtp.map((r:any) => r.payload).join(' ');
+
+			offerMediaObject.rtp=rtp;
+			offerMediaObject.fmtp=fmtp;
+			offerMediaObject.rtcpFb=rtcpFb;
+			offerMediaObject.payloads=payloads;
+			offer = { type: 'offer', sdp: sdpTransform.write(localSdpObject) };
+		}
+
 		// Special case for VP9 with SVC.
 		let hackVp9Svc = false;
 
@@ -451,14 +486,20 @@ export class Chrome74 extends HandlerInterface
 			const redRemoteMedias=
 				this._remoteSdp!._sdpObject.media.filter((m) => m.payloads!.includes('63'));
 
-			redRemoteMedias.forEach((redRemoteMedia) => 
+			for (const redRemoteMedia of redRemoteMedias)
 			{
-				const redLocalMedia=localSdpObject.media.find((m) => m.mid==redRemoteMedia.mid)!;
+				const redLocalMedia = 
+					localSdpObject.media.find((m) => m.mid==redRemoteMedia.mid)!;
+				const rtp = utils.clone(redLocalMedia.rtp.slice(0, 2), {});
+				const fmtp = utils.clone(redLocalMedia.fmtp, {});
+				const rtcpFb = utils.clone(redLocalMedia.rtcpFb, {});
+				const payloads = rtp.map((r:any) => r.payload).join(' ');
 
-				redRemoteMedia.rtp=JSON.parse(JSON.stringify(redLocalMedia.rtp.slice(0, 2)));
-				redRemoteMedia.fmtp=JSON.parse(JSON.stringify(redLocalMedia.fmtp));
-				redRemoteMedia.payloads=redRemoteMedia.rtp.map((r) => r.payload).join(' ');
-			});
+				redRemoteMedia.rtp=rtp;
+				redRemoteMedia.fmtp=fmtp;
+				redRemoteMedia.rtcpFb=rtcpFb;
+				redRemoteMedia.payloads=payloads;
+			}
 		}
 
 		const answer = { type: 'answer', sdp: this._remoteSdp!.getSdp() };
